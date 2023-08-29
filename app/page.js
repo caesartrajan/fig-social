@@ -19,6 +19,7 @@ export default function Home() {
   let api
   let user
   let fileVersions
+  let rawHistoricalTimestamps = []
 
   useEffect(() => {
 
@@ -62,7 +63,24 @@ export default function Home() {
     console.log(fileVersions)
     // const fileHistory = await api.getVersions(fileKey)
     console.log(fileHistory)
+  }
 
+  const recordHistory = (e) => {
+    e.preventDefault()
+
+    console.log(`fileHistory: `, fileHistory)
+    console.log(`parsedFileHistory: `, parsedFileHistory)
+
+    let i
+    for (i=0;i<parsedFileHistory.versions.length;i++) {
+      console.log(`version ${i}: `, parsedFileHistory.versions[i])
+      if (parsedFileHistory.versions[i].user.id == parsedUserRecord.id) {
+        console.log(`version ${i} is a match: `, parsedFileHistory.versions[i])
+        rawHistoricalTimestamps.push(parsedFileHistory.versions[i])
+      }
+    }
+    // This array only shows file versions that the authenticated user is responsible for:
+    console.log(`rawHistoricalTimestamps: `, rawHistoricalTimestamps)
   }
 
   return (
@@ -76,7 +94,7 @@ export default function Home() {
               fileHistory ?
                 <>
                   <p>{fileHistory}</p>
-                  {}
+                  <button onClick={recordHistory}>Compute</button>
                 </>
               :
                 <form onSubmit={getFile}>
