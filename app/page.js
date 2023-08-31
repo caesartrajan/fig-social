@@ -7,6 +7,7 @@ import * as Figma from 'figma-api'
 
 export default function Home() {
 
+  // User
   const [accessToken, setAccessToken] = useState('')
   const [userRecord, setUserRecord] = useState('')
   const [parsedUserRecord, setParsedUserRecord] = useState('')
@@ -20,6 +21,7 @@ export default function Home() {
   let user
   let fileVersions
   let rawHistoricalTimestamps = []
+  let cleanedData
 
   useEffect(() => {
 
@@ -71,16 +73,59 @@ export default function Home() {
     console.log(`fileHistory: `, fileHistory)
     console.log(`parsedFileHistory: `, parsedFileHistory)
 
+    // Make raw file history with just dates and counts
     let i
     for (i=0;i<parsedFileHistory.versions.length;i++) {
-      console.log(`version ${i}: `, parsedFileHistory.versions[i])
+      // console.log(`version ${i}: `, parsedFileHistory.versions[i])
       if (parsedFileHistory.versions[i].user.id == parsedUserRecord.id) {
-        console.log(`version ${i} is a match: `, parsedFileHistory.versions[i])
         rawHistoricalTimestamps.push(parsedFileHistory.versions[i])
+
+        // Clean timestamp
+        rawHistoricalTimestamps[i].created_at = rawHistoricalTimestamps[i].created_at.substr(0,10)
+        delete rawHistoricalTimestamps[i].id
+        delete rawHistoricalTimestamps[i].label
+        delete rawHistoricalTimestamps[i].description
+        delete rawHistoricalTimestamps[i].user
+        delete rawHistoricalTimestamps[i].thumbnail_url
+        // console.log(`version ${i} is a match: `, parsedFileHistory.versions[i])
       }
     }
-    // This array only shows file versions that the authenticated user is responsible for:
     console.log(`rawHistoricalTimestamps: `, rawHistoricalTimestamps)
+
+    // 
+
+    // Create a trailing 365 day array
+    function generateTrailing365DaysArray(endDate) {
+      const dateArray = [];
+      const currentDate = new Date(endDate);
+
+      for (let i = 364; i >= 0; i--) {
+        const date = new Date(currentDate);
+        date.setDate(currentDate.getDate() - i);
+
+        const dateString = date.toISOString().split('T')[0];
+        let count = 0; // Random count for demonstration
+
+        // Iterate count based on history
+        for (let j = 0; j < rawHistoricalTimestamps.length; j++) {
+          if (dateString == rawHistoricalTimestamps[j].created_at) {
+            count = count + 1
+          }
+        }
+        dateArray.push({ Date: dateString, Count: count });
+      }
+
+      // Trailing 365 days with one file's history added to counts
+      return dateArray;
+    }
+
+    // Calculate the current date
+    const today = new Date();
+
+    // Generate the array of objects for the trailing 365 days
+    const trailing365DaysArray = generateTrailing365DaysArray(today);
+
+    console.log(trailing365DaysArray);
   }
 
   return (
