@@ -1,9 +1,17 @@
 'use client'
 
-import Image from 'next/image'
-import { useState, useEffect } from 'react'
+// React
+import { useEffect, useRef, useState } from 'react'
 
+// Moment
+import moment from 'moment'
+
+// Figma
 import * as Figma from 'figma-api'
+
+// Observable
+import * as Plot from '@observablehq/plot'
+import * as d3 from 'd3'
 
 export default function Home() {
 
@@ -17,11 +25,14 @@ export default function Home() {
   const [fileHistory, setFileHistory] = useState()
   const [parsedFileHistory, setParsedFileHistory] = useState('')
 
+  // History
+  const [fullHistory, setFullHistory] = useState([])
+  const [chart, setChart] = useState()
+
   let api
   let user
   let fileVersions
   let rawHistoricalTimestamps = []
-  let cleanedData
 
   useEffect(() => {
 
@@ -31,17 +42,7 @@ export default function Home() {
     setFileHistory(localStorage.getItem("fileVersions"))
     setParsedFileHistory(JSON.parse(localStorage.getItem("fileVersions")))
 
-    userRecord ?
-      console.log(`userRecord present: `,parsedUserRecord.id)
-    :
-      console.log('no userRecord present')
-
-    fileHistory ?
-      console.log(parsedFileHistory)
-    :
-      console.log('no fileHistory present')
-
-  }, [userRecord, fileVersions])
+  }, [userRecord, fileVersions, fullHistory, chart])
 
   const getUser = async (e) => {
     e.preventDefault()
@@ -62,7 +63,7 @@ export default function Home() {
     fileVersions = await api.getVersions(fileKey)
     localStorage.setItem('fileVersions', JSON.stringify(fileVersions))
     // setFileHistory(fileVersions)
-    console.log(fileVersions)
+    console.log(`file versions: `,fileVersions)
     // const fileHistory = await api.getVersions(fileKey)
     console.log(fileHistory)
   }
@@ -70,14 +71,13 @@ export default function Home() {
   const recordHistory = (e) => {
     e.preventDefault()
 
-    console.log(`fileHistory: `, fileHistory)
-    console.log(`parsedFileHistory: `, parsedFileHistory)
-
     // Make raw file history with just dates and counts
     let i
     for (i=0;i<parsedFileHistory.versions.length;i++) {
       // console.log(`version ${i}: `, parsedFileHistory.versions[i])
-      if (parsedFileHistory.versions[i].user.id == parsedUserRecord.id) {
+      if (parsedFileHistory.versions[i].user.id = parsedUserRecord.id) {
+        console.log(`version ${i} is not a match: `, parsedFileHistory.versions[i])
+
         rawHistoricalTimestamps.push(parsedFileHistory.versions[i])
 
         // Clean timestamp
@@ -88,9 +88,10 @@ export default function Home() {
         delete rawHistoricalTimestamps[i].user
         delete rawHistoricalTimestamps[i].thumbnail_url
         // console.log(`version ${i} is a match: `, parsedFileHistory.versions[i])
+      } else {
+        console.log(`version ${i} is not a match: `, parsedFileHistory.versions[i])
       }
     }
-    console.log(`rawHistoricalTimestamps: `, rawHistoricalTimestamps)
 
     // 
 
@@ -100,19 +101,22 @@ export default function Home() {
       const currentDate = new Date(endDate);
 
       for (let i = 364; i >= 0; i--) {
-        const date = new Date(currentDate);
-        date.setDate(currentDate.getDate() - i);
 
-        const dateString = date.toISOString().split('T')[0];
+        const date = new Date(currentDate);
+        date.setDate(currentDate.getDate() - i)
+        const formattedDate = moment(date).format('YYYY-MM-DD')
+
         let count = 0; // Random count for demonstration
 
         // Iterate count based on history
+        console.log(`formattedDate: `, formattedDate)
+        console.log(`rawHistoricalTimestamps[1].created_at: `, rawHistoricalTimestamps[1].created_at)
         for (let j = 0; j < rawHistoricalTimestamps.length; j++) {
-          if (dateString == rawHistoricalTimestamps[j].created_at) {
+          if (formattedDate === rawHistoricalTimestamps[j].created_at) {
             count = count + 1
           }
         }
-        dateArray.push({ Date: dateString, Count: count });
+        dateArray.push({ Date: new Date(formattedDate), Count: count });
       }
 
       // Trailing 365 days with one file's history added to counts
@@ -121,11 +125,32 @@ export default function Home() {
 
     // Calculate the current date
     const today = new Date();
+    console.log(`type of today: `, typeof today)
 
     // Generate the array of objects for the trailing 365 days
     const trailing365DaysArray = generateTrailing365DaysArray(today);
+    setFullHistory(trailing365DaysArray)
+    console.log(`fullHistory: `, trailing365DaysArray)
+  }
 
-    console.log(trailing365DaysArray);
+  const buildCalendar = (e) => {
+    e.preventDefault()
+    const plot = Plot.plot({
+      y: {grid: true},
+      color: {scheme: "Magma", legend: true, label: "Daily change"},
+      marks: [
+        Plot.cell(fullHistory, {
+          x: (d) => d3.utcWeek.count(d3.utcYear(d.Date), d.Date),
+          y: (d) => d.Date.getUTCDay(),
+          fy: (d) => d.Date.getUTCFullYear(),
+          fill: (d, i) => i > 0 ? (d.Count - fullHistory[i - 1].Count) / fullHistory[i - 1].Count : NaN,
+          title: (d, i) => i > 0 ? ((d.Count - fullHistory[i - 1].Count) / fullHistory[i - 1].Count * 50).toFixed(1) : NaN,
+          inset: 0.5
+        })
+      ]
+    });
+    const chartContainer = document.querySelector("#chart")
+    chartContainer.appendChild(plot)
   }
 
   return (
@@ -138,8 +163,10 @@ export default function Home() {
             {
               fileHistory ?
                 <>
-                  <p>{fileHistory}</p>
-                  <button onClick={recordHistory}>Compute</button>
+                  <button onClick={recordHistory}>Compute full history</button>
+                  <button onClick={buildCalendar}>Build calendar</button>
+                  <div id="chart"></div>
+                  <p>{JSON.stringify(fullHistory)}</p>
                 </>
               :
                 <form onSubmit={getFile}>
