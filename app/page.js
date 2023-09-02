@@ -102,26 +102,24 @@ export default function Home() {
       const dateArray = [];
       const currentDate = new Date(endDate);
 
-      for (let i = 210; i >= 0; i--) {
+      for (let i = 240; i >= 0; i--) {
 
         const date = new Date(currentDate);
         date.setDate(currentDate.getDate() - i)
         const formattedDate = moment(date).format('YYYY-MM-DD')
 
-        let count = 0; // Random count for demonstration
+        let count = 0
 
-        // Iterate count based on history
-        console.log(`formattedDate: `, formattedDate)
-        console.log(`formattedDate type: `, typeof formattedDate)
         for (let j = 0; j < rawHistoricalTimestamps.length - 1; j++) {
-          console.log(`rawHistoricalTimestamps#`,j, rawHistoricalTimestamps[j])
-          console.log(`rawHistoricalTimestamps.created_at type: `, typeof rawHistoricalTimestamps[j].created_at)
-          // let createdAtString = rawHistoricalTimestamps[j].created_at
+          
           if (formattedDate == rawHistoricalTimestamps[j].created_at.substr(0,10)) {
             count = count + 1
             console.log(`We have a match! -> `, formattedDate, rawHistoricalTimestamps[j].created_at.substr(0,10))
+            let newDate = new Date(formattedDate.replace(/-/g, '\/').replace(/T.+/, ''))
+            console.log(`newDate: `,newDate)
           }
         }
+        
         dateArray.push({ Date: new Date(formattedDate), Count: count });
       }
 
@@ -150,7 +148,7 @@ export default function Home() {
           y: (d) => d.Date.getUTCDay(),
           fy: (d) => d.Date.getUTCFullYear(),
           fill: (d) => d.Count,
-          title: (d, i) => i > 0 ? ((d.Count - fullHistory[i - 1].Count) / fullHistory[i - 1].Count * 50).toFixed(1) : NaN,
+          // title: (d, i) => i > 0 ? ((d.Count - fullHistory[i - 1].Count) / fullHistory[i - 1].Count * 50).toFxixed(1) : NaN,
           inset: 0.5
         }),
         Plot.cell(fullHistory, Plot.pointer({
@@ -159,7 +157,7 @@ export default function Home() {
           fy: (d) => d.Date.getUTCFullYear(),
           fill: (d) => 'red',
           tip: true,
-          title: (d, i) => i > 0 ? ((d.Count - fullHistory[i - 1].Count) / fullHistory[i - 1].Count * 50).toFixed(1) : NaN,
+          // title: (d, i) => i > 0 ? ((d.Count - fullHistory[i - 1].Count) / fullHistory[i - 1].Count * 50).toFixed(1) : NaN,
           inset: 0.5
         }))
       ]
@@ -173,16 +171,16 @@ export default function Home() {
       {
         userRecord ? 
           <>
-          <div className="user-page-header bg-zinc-900 w-full py-16 px-12">
-            <div className="text-zinc-50 text-3xl">{parsedUserRecord.handle}</div>
-            <div className="text-zinc-400 text-sm">{parsedUserRecord.email}</div>
+          <div className="user-page-header w-full py-16 px-12">
+            <div className="text-zinc-50 text-3xl text-center">{parsedUserRecord.handle}</div>
+            <div className="text-zinc-400 text-sm text-center">{parsedUserRecord.email}</div>
+            <div className="text-black self-center w-fit mx-auto" id="chart"></div>
           </div>
             {
               fileHistory ?
                 <>
                   <button onClick={recordHistory}>Compute full history</button>
                   <button onClick={buildCalendar}>Build calendar</button>
-                  <div className="text-black bg-zinc-900" id="chart"></div>
                 </>
               :
                 <form onSubmit={getFile}>

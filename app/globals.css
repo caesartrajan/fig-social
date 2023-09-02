@@ -27,7 +27,7 @@ body {
 }
 
 svg {
-  background: rgb(9 9 11 / var(--tw-bg-opacity))!important;
-  /* width: fill;
-  height: fill; */
+  background-color: rgb(24 24 27 / var(--tw-bg-opacity))!important;
+  width: fit-content!important;
+  height: fit-content!important;
 }

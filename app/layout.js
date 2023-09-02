@@ -9,8 +9,8 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-zinc-950">
-        <nav className="bg-zinc-900 px-8 pt-8">
+      <body className="bg-zinc-900">
+        <nav className="px-8 pt-8">
           <div className="logo text-zinc-400 text-sm">Fig Social</div>
           <Image
             src="/potted_plant.png"
