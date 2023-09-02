@@ -1,7 +1,5 @@
 import './globals.css'
-import { Inter } from 'next/font/google'
-
-const inter = Inter({ subsets: ['latin'] })
+import Image from "next/image"
 
 export const metadata = {
   title: 'Create Next App',
@@ -11,7 +9,18 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className="bg-zinc-950">
+        <nav className="bg-zinc-900 px-8 pt-8">
+          <div className="logo text-zinc-400 text-sm">Fig Social</div>
+          <Image
+            src="/potted_plant.png"
+            width={24}
+            height={24}
+            alt="Picture of the author"
+          />
+        </nav>
+        {children}
+      </body>
     </html>
   )
 }

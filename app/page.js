@@ -102,7 +102,7 @@ export default function Home() {
       const dateArray = [];
       const currentDate = new Date(endDate);
 
-      for (let i = 364; i >= 0; i--) {
+      for (let i = 210; i >= 0; i--) {
 
         const date = new Date(currentDate);
         date.setDate(currentDate.getDate() - i)
@@ -113,12 +113,13 @@ export default function Home() {
         // Iterate count based on history
         console.log(`formattedDate: `, formattedDate)
         console.log(`formattedDate type: `, typeof formattedDate)
-        for (let j = 0; j < rawHistoricalTimestamps.length; j++) {
+        for (let j = 0; j < rawHistoricalTimestamps.length - 1; j++) {
           console.log(`rawHistoricalTimestamps#`,j, rawHistoricalTimestamps[j])
           console.log(`rawHistoricalTimestamps.created_at type: `, typeof rawHistoricalTimestamps[j].created_at)
           // let createdAtString = rawHistoricalTimestamps[j].created_at
           if (formattedDate == rawHistoricalTimestamps[j].created_at.substr(0,10)) {
             count = count + 1
+            console.log(`We have a match! -> `, formattedDate, rawHistoricalTimestamps[j].created_at.substr(0,10))
           }
         }
         dateArray.push({ Date: new Date(formattedDate), Count: count });
@@ -142,7 +143,7 @@ export default function Home() {
     e.preventDefault()
     const plot = Plot.plot({
       y: {grid: true},
-      color: {scheme: "OrRd", legend: true, label: "Daily change"},
+      color: {scheme: "Cubehelix"},
       marks: [
         Plot.cell(fullHistory, {
           x: (d) => d3.utcWeek.count(d3.utcYear(d.Date), d.Date),
@@ -168,19 +169,20 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col">
+    <main className="flex min-h-screen flex-col text-white">
       {
         userRecord ? 
           <>
-            <p>{parsedUserRecord.handle}</p>
-            <p>{parsedUserRecord.email}</p>
+          <div className="user-page-header bg-zinc-900 w-full py-16 px-12">
+            <div className="text-zinc-50 text-3xl">{parsedUserRecord.handle}</div>
+            <div className="text-zinc-400 text-sm">{parsedUserRecord.email}</div>
+          </div>
             {
               fileHistory ?
                 <>
                   <button onClick={recordHistory}>Compute full history</button>
                   <button onClick={buildCalendar}>Build calendar</button>
-                  <div id="chart"></div>
-                  <p>{JSON.stringify(fullHistory)}</p>
+                  <div className="text-black bg-zinc-900" id="chart"></div>
                 </>
               :
                 <form onSubmit={getFile}>
