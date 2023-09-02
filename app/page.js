@@ -72,26 +72,28 @@ export default function Home() {
     e.preventDefault()
 
     // Make raw file history with just dates and counts
+    console.log(`parsedfilehistory:  `, parsedFileHistory)
     let i
     for (i=0;i<parsedFileHistory.versions.length;i++) {
-      // console.log(`version ${i}: `, parsedFileHistory.versions[i])
-      if (parsedFileHistory.versions[i].user.id = parsedUserRecord.id) {
-        console.log(`version ${i} is not a match: `, parsedFileHistory.versions[i])
-
+      // Check each version to see if it was created by the authenticated user
+      if (parsedFileHistory.versions[i].user.id == parsedUserRecord.id) {
+        console.log(`version ${i} is a match: `, parsedFileHistory.versions[i])
         rawHistoricalTimestamps.push(parsedFileHistory.versions[i])
 
         // Clean timestamp
-        rawHistoricalTimestamps[i].created_at = rawHistoricalTimestamps[i].created_at.substr(0,10)
-        delete rawHistoricalTimestamps[i].id
-        delete rawHistoricalTimestamps[i].label
-        delete rawHistoricalTimestamps[i].description
-        delete rawHistoricalTimestamps[i].user
-        delete rawHistoricalTimestamps[i].thumbnail_url
+        // rawHistoricalTimestamps[i].created_at = rawHistoricalTimestamps[i].created_at.substr(0,10)
+        // delete rawHistoricalTimestamps[i].id
+        // delete rawHistoricalTimestamps[i].label
+        // delete rawHistoricalTimestamps[i].description
+        // delete rawHistoricalTimestamps[i].user
+        // delete rawHistoricalTimestamps[i].thumbnail_url
         // console.log(`version ${i} is a match: `, parsedFileHistory.versions[i])
       } else {
         console.log(`version ${i} is not a match: `, parsedFileHistory.versions[i])
       }
     }
+
+    console.log(`rawHistoricalTimestamps: `, rawHistoricalTimestamps)
 
     // 
 
@@ -110,9 +112,12 @@ export default function Home() {
 
         // Iterate count based on history
         console.log(`formattedDate: `, formattedDate)
-        console.log(`rawHistoricalTimestamps[1].created_at: `, rawHistoricalTimestamps[1].created_at)
+        console.log(`formattedDate type: `, typeof formattedDate)
         for (let j = 0; j < rawHistoricalTimestamps.length; j++) {
-          if (formattedDate === rawHistoricalTimestamps[j].created_at) {
+          console.log(`rawHistoricalTimestamps#`,j, rawHistoricalTimestamps[j])
+          console.log(`rawHistoricalTimestamps.created_at type: `, typeof rawHistoricalTimestamps[j].created_at)
+          // let createdAtString = rawHistoricalTimestamps[j].created_at
+          if (formattedDate == rawHistoricalTimestamps[j].created_at.substr(0,10)) {
             count = count + 1
           }
         }
@@ -137,16 +142,25 @@ export default function Home() {
     e.preventDefault()
     const plot = Plot.plot({
       y: {grid: true},
-      color: {scheme: "Magma", legend: true, label: "Daily change"},
+      color: {scheme: "OrRd", legend: true, label: "Daily change"},
       marks: [
         Plot.cell(fullHistory, {
           x: (d) => d3.utcWeek.count(d3.utcYear(d.Date), d.Date),
           y: (d) => d.Date.getUTCDay(),
           fy: (d) => d.Date.getUTCFullYear(),
-          fill: (d, i) => i > 0 ? (d.Count - fullHistory[i - 1].Count) / fullHistory[i - 1].Count : NaN,
+          fill: (d) => d.Count,
           title: (d, i) => i > 0 ? ((d.Count - fullHistory[i - 1].Count) / fullHistory[i - 1].Count * 50).toFixed(1) : NaN,
           inset: 0.5
-        })
+        }),
+        Plot.cell(fullHistory, Plot.pointer({
+          x: (d) => d3.utcWeek.count(d3.utcYear(d.Date), d.Date),
+          y: (d) => d.Date.getUTCDay(),
+          fy: (d) => d.Date.getUTCFullYear(),
+          fill: (d) => 'red',
+          tip: true,
+          title: (d, i) => i > 0 ? ((d.Count - fullHistory[i - 1].Count) / fullHistory[i - 1].Count * 50).toFixed(1) : NaN,
+          inset: 0.5
+        }))
       ]
     });
     const chartContainer = document.querySelector("#chart")
