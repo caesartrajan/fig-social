@@ -42,9 +42,12 @@ export default function Home() {
     // Add a new document in collection "cities"
     try {
       const docRef = await addDoc(collection(db, "users"), {
-        first: "Ada",
-        last: "Lovelace",
-        born: 1815
+        handle: user.handle,
+        email: user.email,
+        imgUrl: user.img_url,
+        files: [],
+        history: [],
+        created: 1815
       });
       console.log("Document written with ID: ", docRef.id);
     } catch (e) {
