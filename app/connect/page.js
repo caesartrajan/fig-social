@@ -79,7 +79,7 @@ export default function Home() {
           </div>
         : 
           <form className="flex flex-col items-center justify-center" onSubmit={connect}>
-            <input type="text" palceholder="Your personal access token" value={accessToken} onChange={e => setAccessToken(e.target.value)}></input>
+            <input type="text" name="personal-access-token" id="personal-access-token" palceholder="Your personal access token" value={accessToken} onChange={e => setAccessToken(e.target.value)}></input>
             <button>Connect your Figma account</button>
           </form>
       }
