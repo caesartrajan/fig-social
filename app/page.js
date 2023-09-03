@@ -1,7 +1,7 @@
 'use client'
 
 // React
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // Moment
 import moment from 'moment'
