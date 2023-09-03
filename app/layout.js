@@ -1,5 +1,5 @@
 import './globals.css'
-import Image from "next/image"
+import Link from "next/link"
 
 export const metadata = {
   title: 'Create Next App',
@@ -10,14 +10,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="bg-zinc-900">
-        <nav className="px-8 pt-8">
-          <div className="logo text-zinc-400 text-sm">Fig Social</div>
-          <Image
-            src="/potted_plant.png"
-            width={24}
-            height={24}
-            alt="Picture of the author"
-          />
+        <nav className="flex justify-between px-8 pt-8">
+          <Link href="/" className="text-zinc-400 text-sm">Fig Social</Link>
+          <Link href="/connect" className="text-zinc-400 text-sm">Connect your Figma Account</Link>
         </nav>
         {children}
       </body>
