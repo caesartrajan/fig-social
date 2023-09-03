@@ -3,8 +3,9 @@
 // React
 import { useEffect, useState } from 'react'
 
-// Moment
-import moment from 'moment'
+// Firebase
+import firebase_app from '../../config/firebase'
+import { getFirestore, doc, setDoc, addDoc, collection } from "firebase/firestore"
 
 // Figma
 import * as Figma from 'figma-api'
@@ -18,6 +19,8 @@ export default function Home() {
 
   let api
   let user
+
+  const db = getFirestore(firebase_app)
 
   useEffect(() => {
 
@@ -35,6 +38,18 @@ export default function Home() {
     localStorage.setItem('user', JSON.stringify(user))
     setUserRecord(localStorage.getItem("user"))
     setParsedUserRecord(JSON.parse(localStorage.getItem("user")))
+
+    // Add a new document in collection "cities"
+    try {
+      const docRef = await addDoc(collection(db, "users"), {
+        first: "Ada",
+        last: "Lovelace",
+        born: 1815
+      });
+      console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
   }
 
   const disconnect = async (e) => {
