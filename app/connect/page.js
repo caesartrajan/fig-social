@@ -10,7 +10,7 @@ import { getFirestore, doc, setDoc, addDoc, collection } from "firebase/firestor
 // Figma
 import * as Figma from 'figma-api'
 
-export default function Home() {
+export default function Connect() {
 
   // User
   const [accessToken, setAccessToken] = useState('')
@@ -31,16 +31,19 @@ export default function Home() {
 
   const connect = async (e) => {
 
-    console.log('connecting account')
     e.preventDefault()
+
+    // Connect to Figma
     api = new Figma.Api({ personalAccessToken: accessToken });
     user = await api.getMe()
 
+    // Save user data to localStorage
     localStorage.setItem('accessToken', accessToken)
     localStorage.setItem('user', JSON.stringify(user))
     setUserRecord(localStorage.getItem("user"))
     setParsedUserRecord(JSON.parse(localStorage.getItem("user")))
 
+    // Write user data to Firestore
     await addDoc(collection(db, "users"), {
       handle: user.handle,
       email: user.email,
