@@ -40,8 +40,8 @@ export default function Home() {
     localStorage.setItem('user', JSON.stringify(user))
     setUserRecord(localStorage.getItem("user"))
     setParsedUserRecord(JSON.parse(localStorage.getItem("user")))
-    
-    const docRef = await addDoc(collection(db, "users"), {
+
+    await addDoc(collection(db, "users"), {
       handle: user.handle,
       email: user.email,
       imgUrl: user.img_url,
@@ -49,7 +49,6 @@ export default function Home() {
       history: [],
       created: 1815
     });
-    console.log("Document written with ID: ", docRef.id)
   }
 
   const disconnect = async (e) => {
