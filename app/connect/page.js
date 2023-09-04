@@ -30,6 +30,8 @@ export default function Home() {
   }, [userRecord])
 
   const connect = async (e) => {
+
+    console.log('connecting account')
     e.preventDefault()
     api = new Figma.Api({ personalAccessToken: accessToken });
     user = await api.getMe()
@@ -38,21 +40,16 @@ export default function Home() {
     localStorage.setItem('user', JSON.stringify(user))
     setUserRecord(localStorage.getItem("user"))
     setParsedUserRecord(JSON.parse(localStorage.getItem("user")))
-
-    // Add a new document in collection "cities"
-    try {
-      const docRef = await addDoc(collection(db, "users"), {
-        handle: user.handle,
-        email: user.email,
-        imgUrl: user.img_url,
-        files: [],
-        history: [],
-        created: 1815
-      });
-      console.log("Document written with ID: ", docRef.id);
-    } catch (e) {
-      console.error("Error adding document: ", e);
-    }
+    
+    const docRef = await addDoc(collection(db, "users"), {
+      handle: user.handle,
+      email: user.email,
+      imgUrl: user.img_url,
+      files: [],
+      history: [],
+      created: 1815
+    });
+    console.log("Document written with ID: ", docRef.id)
   }
 
   const disconnect = async (e) => {
