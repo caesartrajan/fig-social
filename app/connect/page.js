@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 
 // Firebase
 import firebase_app from '../../config/firebase'
-import { getFirestore, doc, setDoc, addDoc, collection } from "firebase/firestore"
+import { getFirestore, serverTimestamp, addDoc, collection } from "firebase/firestore"
 
 // Figma
 import * as Figma from 'figma-api'
@@ -50,7 +50,7 @@ export default function Connect() {
       imgUrl: user.img_url,
       files: [],
       history: [],
-      created: 1815
+      created: serverTimestamp()
     });
   }
 
